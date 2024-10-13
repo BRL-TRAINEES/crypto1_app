@@ -19,7 +19,7 @@ class CryptoDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Basic Crypto Information
+            
             Text(
               "${crypto.name} (${crypto.symbol.toUpperCase()})",
               style: TextStyle(fontSize: 24, color: Colors.white),
@@ -44,12 +44,12 @@ class CryptoDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Placeholder for Chart
+            //  for Chart
             Text(
-              "Price Chart", // Replace with your chart widget
+              "Price Chart", 
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
-            // You can use a charting library here to show historical data
+            
           ],
         ),
       ),

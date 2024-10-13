@@ -3,8 +3,8 @@ class Crypto {
   final String symbol;
   final double price;
   final double changePercentage;
-  final double marketCap; // Add this line
-  final double volume; // Add this line
+  final double marketCap; 
+  final double volume; 
   final String imageUrl;
 
   Crypto({
@@ -23,8 +23,8 @@ class Crypto {
       symbol: json['symbol'],
       price: json['current_price'].toDouble(),
       changePercentage: json['price_change_percentage_24h'].toDouble(),
-      marketCap: json['market_cap'].toDouble(), // Ensure this is included
-      volume: json['total_volume'].toDouble(), // Ensure this is included
+      marketCap: json['market_cap'].toDouble(), 
+      volume: json['total_volume'].toDouble(), 
       imageUrl: json['image'],
     );
   }

@@ -20,7 +20,7 @@ class _HomescreenState extends State<Homescreen> {
     super.initState();
     futureCryptos = ApiService().fetchCryptos().then((cryptos) {
       allCryptos = cryptos;
-      filteredCryptos = cryptos; // Initialize filtered list
+      filteredCryptos = cryptos; 
       return cryptos;
     });
   }
@@ -82,7 +82,7 @@ class _HomescreenState extends State<Homescreen> {
                     itemCount: filteredCryptos.length,
                     itemBuilder: (context, index) {
                       final crypto = filteredCryptos[index];
-                      return GestureDetector( // Use GestureDetector to handle taps
+                      return GestureDetector( 
                         onTap: () {
                           Navigator.push(
                             context,
