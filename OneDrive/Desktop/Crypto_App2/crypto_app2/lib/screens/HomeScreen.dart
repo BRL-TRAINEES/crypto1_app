@@ -5,19 +5,30 @@ import 'package:crypto_app2/crypto_model.dart';
 import 'crypto_detail_screen.dart';
 
 class Homescreen extends StatefulWidget {
+  const Homescreen({super.key});
+
   @override
   _HomescreenState createState() => _HomescreenState();
 }
 
-class _HomescreenState extends State<Homescreen> {
+class _HomescreenState extends State<Homescreen> with SingleTickerProviderStateMixin {
   late Future<List<Crypto>> futureCryptos;
   List<Crypto> allCryptos = [];
   List<Crypto> filteredCryptos = [];
   TextEditingController searchController = TextEditingController();
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    _animation = Tween<double>(begin: 0.8, end: 1.0).animate(_controller);
+
     futureCryptos = ApiService().fetchCryptos().then((cryptos) {
       allCryptos = cryptos;
       filteredCryptos = cryptos; 
@@ -33,6 +44,12 @@ class _HomescreenState extends State<Homescreen> {
     setState(() {
       filteredCryptos = filtered;
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -69,11 +86,20 @@ class _HomescreenState extends State<Homescreen> {
                 future: futureCryptos,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: ScaleTransition(
+                        scale: _animation,
+                        child: CircularProgressIndicator(
+                          
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 2.0,
+                        ),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No data found'));
+                    return Center(child: Text('No data found', style: TextStyle(color: Colors.white)));
                   }
 
                   return ListView.builder(
@@ -91,72 +117,75 @@ class _HomescreenState extends State<Homescreen> {
                             ),
                           );
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 20.0),
-                          child: Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: 60,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 60,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(15),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.grey[700]!,
-                                                offset: const Offset(4, 4),
-                                                blurRadius: 1,
+                        child: ScaleTransition(
+                          scale: _animation, 
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 20.0),
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: 60,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 60,
+                                            height: 60,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(15),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.grey[700]!,
+                                                  offset: const Offset(4, 4),
+                                                  blurRadius: 1,
+                                                ),
+                                              ],
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(10),
+                                              child: Image.network(crypto.imageUrl),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 20.0),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                crypto.name,
+                                                style: textStyle(18, Colors.white, FontWeight.w600),
+                                              ),
+                                              Text(
+                                                "${crypto.changePercentage.toStringAsFixed(2)}%",
+                                                style: textStyle(18, Colors.white, FontWeight.w600),
                                               ),
                                             ],
                                           ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Image.network(crypto.imageUrl),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 20.0),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              crypto.name,
-                                              style: textStyle(18, Colors.white, FontWeight.w600),
-                                            ),
-                                            Text(
-                                              "${crypto.changePercentage.toStringAsFixed(2)}%",
-                                              style: textStyle(18, Colors.white, FontWeight.w600),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      "\$${crypto.price.toStringAsFixed(2)}",
-                                      style: textStyle(18, Colors.white, FontWeight.w600),
-                                    ),
-                                    Text(
-                                      crypto.symbol.toUpperCase(),
-                                      style: textStyle(18, Colors.white, FontWeight.w600),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        "\$${crypto.price.toStringAsFixed(2)}",
+                                        style: textStyle(18, Colors.white, FontWeight.w600),
+                                      ),
+                                      Text(
+                                        crypto.symbol.toUpperCase(),
+                                        style: textStyle(18, Colors.white, FontWeight.w600),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
